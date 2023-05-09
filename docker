@@ -1,0 +1,380 @@
+sudo su
+sudo yum install docker -y
+sudo service docker start
+sudo service docker start
+
+docker pull nginx                                     (it pull nginx)
+docker images
+docker search nginx
+docker search mysql
+docker pull mysql
+docker images
+docker run -d nginx
+docker run -it nginx /bin/bash
+docker ps
+docker ps -a
+docker exec -it <container name or container id> /bin/bash
+docker history <imageid>
+docker history <image name: image id>
+docker images
+docker ps
+docker ps -a
+docker run -d nginx
+docker run -d --name mynginx nginx
+docker ps
+docker inspect <containerid or containername>
+docker inspect <imageid or imagename>
+docker exec -it <container name or container id> /bin/bash
+ls
+cd /usr/share/nginx/html
+ls
+apt-get update -y
+apt-get install nano -y
+nano index.html
+Index.html show 3 way..............
+
+1) Curl http://localhost
+docker ps
+2) Curl http://ipaddress
+docker ps
+docker commit <container name or container id> myupdatednginx
+docker images
+docker history <imageid or image name>
+docker export <container id or container name> > my.tar                                   (container tar)
+docker save  <imageid or imagename>  >myimg.tar                                            (image tar)
+docker ps
+
+**************port mapping ***************************
+docker run -d --name mywebsite -p80:80 <image name: nginx>
+docker ps
+docker exec –it mywebsite  /bin/bash
+ls
+cd /usr/share/nginx/html
+apt-get update –y
+apt-get install nano –y
+nano index.html
+write there browser check
+exit
+
+*dockerhub  account create:-
+docker login
+username :-userprachi
+passord put
+docker images
+docker tag myupdatednginx userprachi/mynginx
+docker images
+docker push userprachi/mynginx
+docker tag  myupdatednginx  userprachi/mynginx:v1.0                                         (tag &version)
+docker push userprachi/mynginx:v1.0
+docker pull  userprachi/mynginx:v1.0        
+
+*ECR (elastic container registry) create in AWS  (5GB)
+create repository get started----general setting---visibility setting----(private repository select)----repositoryname (mynginx)------create repository.
+aws --version
+aws configure
+security credential active access key or secret key
+ap-south-1
+json
+aws s3 ls
+command 1 copy ecr first
+docker images
+command 3 copy in ecr 
+docker tag  oldimagename  ECRname
+docker images
+docker push ECRcopyname
+docker images
+docker rmi $(docker images  -q)
+docker rm  $(docker ps –aq)
+docker rm $(docker ps –aq)  -f                                                                                  
+
+*************************volume create ********************************************
+mkdir mycode
+cd mycode
+nano index.html
+write there this webpage created inside mycode folder in ec2
+cd ..
+docker run –d --name  mywebsite -p80:80  -v /home/ec2-user/mycode/:/usr/share/nginx/html/ nginx
+docker  ps
+browser   check
+ls
+cd  mycode
+nano index.html
+changing from running from ec2
+docker inspect  mywebsite                                                                                (port mappind binds show)
+docker ps
+docker exec   -it  mywebsite    /bin/bash
+cd   /usr/share/nginx/html
+ls
+touch  contact.html
+echo “contact me on this number 098765321” >contact.html
+ls
+cat contact.html
+exit
+ls
+cd  ..
+*****************************mysql volume*******************************
+Mysql volume:-
+mkdir  mydata
+cd mydata
+ls
+docker  logs   <container id or name>
+docker run –d --name mydb  -e MYSQL_ROOT_PASSWORD=Pass@123  -v /home/ec2-user/mydata/:/var/lib/mysql    mysql
+docker  ps
+docker logs  mydb                                                                                                                  (for error showing)
+ls
+cd  mydata                                                                                                                             ( mysql create page)
+cd ..
+docker  exec  -it  <mysqlcontainerid>    /bin/bash
+ls
+mysql –u root   -p
+Pw
+Show  databases;
+Use hawahawai;
+Show tables;
+exit
+cd mydata
+docker volume create mybackups                                                                              (real time used)
+cd  /var/lib/docker/volumes/                                                                                           (backup show)
+ls
+docker run –d  -v  mybackups :/var/lib/mysql    -e   MYSQL_ROOT_PASSWORD=Pass@123   mysql
+
+*******************************wordpress volume***************************************
+
+docker run –d -p80:80 --name mywpdb –e MYSQL_ROOT_PASSWORD=Pass@123 -e MYSQL_DATABASE=wordpressdb   mysql                                                                        (first create mysql)
+docker ps
+docker run –d –p80:80  -e  WORDPRESS_DB_HOST=mywpdb   -e  WORDPRESS_DB_USER=root  -e WORDPRESS _DB _PASSWORD=Pass@123    -e  WORDPRESS_DB_NAME=wordpressdb  --link  mywpdb:mysql   wordpress                                                                                    (then create wordpress)
+docker ps
+ec2 ip copy paste in browser wordpress see---site titles , username, password, email, confirm password –install wordpress
+docker stop  <wordpresscontainer id>  
+*docker   run   –d  --name   myos  Ubuntu                                                                      (don’t run)
+docker ps
+docker ps  -a
+docker stop  <wordpresscontainer id>
+___________________________________________________________________________________________________________________________________________________________________________
+DOCKERFILE:-
+___________________
+example 1:-
+nano Dockerfile
+FROM ubuntu
+RUN apt-get update -y
+RUN apt-get install nginx -y
+EXPOSE 80
+RUN service nginx start
+RUN cd /var/www/html
+RUN touch index.html
+RUN echo "this is my first" >index.html
+CMD ["nginx", "-g", "daemon-off;"]
+
+or  
+
+FROM Ubuntu
+RUN apt-get update -y
+RUN apt-get install nginx –y
+EXPOSE 80
+WORKDIR   /var/www/html                                    or                          RUN  cd /var/www/html
+RUN touch index.html
+RUN “this is nginx page from Ubuntu” >index.html
+CMD [“nginx”, “-g”, “daemon off;”]
+
+docker   build  .                                                                                (docker file build now)
+docker images
+docker ps 
+docker run –d –p80:80  --name myownweb  <imageidof ubuntu>                                             (container create)
+docker tag  <imageid>  myimg
+
+example 2:-
+FROM nginx
+WORKDIR  /var/www/html
+RUN touch index.html
+RUN echo “this is nginx page from Ubuntu” >index.html
+CMD [“nginx”, “-g”, “daemon off”]
+
+docker build –t  mynginximg   -f  mydockerfile         .dot
+docker images
+__________________________________________________________________________________________________________________________________________________________________________
+node js dockerfile:-
+
+1)Dockerfile
+2)package.json
+3)server.js     or index.js
+nodejs version:-
+Node.js v19.7.0
+
+------------------------------------------------------------------------------------------
+*mkdir nodeapp
+*cd nodeapp
+*nano Dockerfile:-
+
+FROM node
+WORKDIR /usr/src/app
+COPY package* .
+COPY . .
+RUN npm install
+EXPOSE 8080
+CMD ["node","node server.js"]
+
+-------------------------------------------------------------------------------------------
+*nano package.json :-
+
+{
+  "name": "docker_web_app",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "First Last <first.last@example.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.1"
+  }
+}
+
+----------------------------------------------------------------------------------------------
+*nano server.js   or index.js :-  (yachyavr lokanchi request yete)
+
+'use strict';
+
+const express = require('express');
+
+// Constants
+const PORT = 8080;
+const HOST = '0.0.0.0';
+
+// App
+const app = express();
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+app.listen(PORT, HOST, () => {
+  console.log(`Running on http://${HOST}:${PORT}`);
+});
+
+
+-----------------------------------------------------------------------------------------------------
+docker build .
+docker run -d -p80:80 -v /home/ec2-user/nodeapp/:/usr/src/app  <image id>
+docker logs <container id>
+docker run -d -p80:80 <image id>
+__________________________________________________________________________________________________________________________________________________________
+
+python dockerfile:- 
+1)dockerfile
+2)app.py
+3)requirements.txt
+security group of ec2 add port number 5000 and 8081
+
+*mkdir flaskapp
+*cd flaskapp
+*nano dockerfile:-
+
+FROM python:3.8-slim-buster
+
+WORKDIR /python-docker
+
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+RUN pip3 install flask
+EXPOSE 8081
+COPY . .
+
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+----------------------------------------------------------------------------------------------------------------------------------
+
+*nano app.py :-
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_geek():
+    return '<h1>Hello from Flask & Docker</h2>'
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
+----------------------------------------------------------------------------------------------------------------------------------
+
+*touch requirements.txt  (empty thevli tr chalel)
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+docker build  .
+docker images
+docker run -d -p5000:5000 <image id>
+docker ps
+docker logs <container id>
+add security group 5000 port ....
+_____________________________________________________________________________________________________________________________________________________________________
+
+create mysql in  wordpress :-
+
+mysql dockerfile first make then wordpress dockerfile and link bwtween them create.
+
+mysql dockerfile:-
+*mkdir wpsqldockerfile
+*cd wpsqldockerfile
+
+*nano mysqldockerfile
+
+FROM mysql
+MAINTAINER prachi
+ENV MYSQL_ROOT_PASSWORD Pass@123
+ENV MYSQL_DATABASE wordpressdb
+EXPOSE 3306
+CMD ["mysqld"]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*docker build -t mysqlimg -f mysqldockerfile .
+*docker images
+*nano wpdockerfile
+
+FROM wordpress
+ENV WORDPRESS_DB_NAME mywpdb
+ENV WORDPRESS_DB_USER root
+ENV WORDPRESS_DB_PASSWORD Pass@123
+ENV WORDPRESS_DB_NAME wordpressdb
+EXPOSE 80
+                                                                       (by default wordpress start CMD so cant use)
+-------------------------------------------------------------------------------------------------------------------------------
+*docker build -t wpimg -f wpdockerfile
+*docker images
+*nano mysqlbackup
+
+*docker run –d – -name mywpdb –v /home/ec2-user/wpmysqldockerfile/mysqlbackups:/var/lib/mysql/   mysqlimg
+*docker ps
+*docker run-d –p80:80 - -name  wp  - -link mywpdb:mysqlimg  mywpimg
+* ec2 ip copy and paste on browser to show wordpress...ip/wp-admin/install php
+____________________________________________________________________________________________
+shell script in dockerfile
+
+*mkdir shelldocker 
+*cd shelldocker
+
+
+*nano mysh.sh
+#!/bin/bash
+set -e
+mysql -u root -pPass@123 -e "create database insta";
+mysql -u root -pPass@123 <<EOF
+create database mydb;
+use mydb;
+create table posts(id int, status varchar(200), posturl varchar(200));
+insert into posts(id, status, posturl)values("1", "come to goa", "https://insta.com");
+EOF
+
+*cd ..
+*ls
+*nano mysqldockerfile                              --(mysql madhal aahe add below lines)
+COPY  mysh.sh /docker-entrypoint-initdb.d/mysh.sh
+RUN chmod +x /docker-entrypoint-initdb.d/mysh.sh
+CMD ["mysqld"]                         or        ENTRYPOINT ["sh","/home/ec2-user/mysh.sh"]       cmd and entrypoint execute after container create.
+*docker build –t shellwala –f mysqldockerfile  .
+*doker run –d shellwala
+*docker ps
+*docker exec –it <containerid> /bin/bash
+*mysql –u root –p
+*password
+*show databases;
+________________________________________________________________________________________________________________________________________________________________________
+
+
