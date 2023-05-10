@@ -377,4 +377,179 @@ CMD ["mysqld"]                         or        ENTRYPOINT ["sh","/home/ec2-use
 *show databases;
 ________________________________________________________________________________________________________________________________________________________________________
 
+************************************DOCKER-COMPOSE****************************************
+docker run :- for container create use
+dockerfile:- modification in docker image then used
+docker compose :-more than one container then used 
+eg1 :- docker image vrun docker compose
 
+sudo yum install docker -y
+sudo service docker start
+sudo service docker status
+
+*sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose                               (docker install)
+
+*sudo chmod +x /usr/local/bin/docker-compose
+
+*docker-compose version                                                         (v2.16.0)
+
+*sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+*sudo nano docker-compose.yml
+services:
+ db:
+  image: mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: Pass@123
+   MYSQL_DATABASE: wordpressdb
+  ports:
+   - 3306                                                    (- used for multiple value list)                                                                      
+ wordpress:
+  image: wordpress
+  ports:
+   - 80:80
+  depends_on:
+   - db
+  environment:
+   WORDPRESS_DB_HOST: db
+   WORDPRESS_DB_USER: root
+   WORDPRESS_DB_PASSWORD: Pass@123
+   WORDPRESS_DB_NAME: wordpressdb
+   
+   *docker-compose up -d                                                     (docker build + run)
+3 line shows 1)network create
+             2)container 1  
+             3)container 2
+*docker-compose ps
+*docker network ls
+*docker network inspect <networkname>
+---------------------------------------------------------------------------------------------------------------------------------------------------
+Eg 2):-three tier example web, app, db  (kaku) (two network create in three-tier architecture)
+
+nano threetier.yml
+services:
+ db:
+  image: mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: Pass@123
+   MYSQL_DATABASE: wordpressdb
+  ports:
+   - 3306
+  networks:
+   - backend
+
+ web:
+  image: php:7.4-apache
+  ports:
+   - 80:80
+  depends_on:
+   - db
+  networks:
+   - frontend
+
+ app:
+  image: php:7.4-fpm
+  depends_on:
+   - db
+  networks:
+   - frontend
+   - backend
+
+networks:
+   frontend:
+   backend:
+
+docker compose down                                 (remove container, network)
+docker-compose -f threetier.yml up -d
+docker network ls
+docker network inspect <networkname>
+docker network inspect <networkname>
+docker-compose -f threetier.yml ps
+docker exec -it <container name> /bin/bash
+ls
+touch index.html
+echo "hii" > index.html
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+VOLUME MOUNT ON DOCKER-COMPOSE (volume used for backup)
+
+services:
+ db:
+  image: mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: Pass@123
+   MYSQL_DATABASE: wordpressdb
+  ports:
+   - 3306
+  volumes:
+   - mybackup:/var/lib/mysql/
+
+ wordpress:
+  image: wordpress
+  ports:
+   - 80:80
+  depends_on:
+   - db
+  environment:
+   WORDPRESS_DB_HOST: db
+   WORDPRESS_DB_USER: root
+   WORDPRESS_DB_PASSWORD: Pass@123
+   WORDPRESS_DB_NAME: wordpressdb
+
+volumes:
+ mybackup:
+
+
+docker-compose up -d
+sudo service docker stop
+docker-compose down
+docker volume ls                                                                            (volume show)
+docker volume inspect <volumename>                                                          (volume madhe ky ky aahe)
+----Bind mount means we own create volume ----
+docker volume second name is  named value
+docker volume path:-/var/lib/docker/volume                                                  (docker create it)
+docker-compose volume ps
+docker volume ls
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Docker file ch docker compose madhe 
+
+
+nano dockerfile
+
+FROM mysql
+ENV MYSQL_ROOT_PASSWORD: Pass@123
+ENV MYSQL_DATABASE: mydb
+EXPOSE: 3306
+CMD ["mysqld"]
+
+nano docker-compose.yml
+
+services:
+ db:
+  build:
+   context: .
+   dockerfile: Dockerfile
+  volumes:
+   - mybackup:/var/lib/mysql/
+ wordpress:
+  image: wordpress
+  ports:
+   - 80:80
+  depends_on:
+   - db
+  environment:
+   WORDPRESS_DB_HOST: ec2-user-db-1
+   WORDPRESS_DB_USER: root
+   WORDPRESS_DB_PASSWORD: Pass@123
+   WORDPRESS_DB_NAME: wordpressdb
+  volumes:
+    - wpdata:/var/www/html/
+
+volumes:
+ mybackup:
+ wpdata:
+
+docker-compose up -d
+docker-compose ps
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
