@@ -2,6 +2,8 @@ sudo su
 sudo yum install docker -y
 sudo service docker start
 sudo service docker start
+which docker                                         /usr/bin/docker
+docker --version                                      20.10.23
 
 docker pull nginx                                     (it pull nginx)
 docker images
