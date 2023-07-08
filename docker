@@ -2,21 +2,21 @@ sudo su
 sudo yum install docker -y
 sudo service docker start
 sudo service docker start
-which docker                                         /usr/bin/docker
-docker --version                                      20.10.23
+which docker                                                    /usr/bin/docker
+docker --version                                                20.10.23
 
-docker pull nginx                                     (it pull nginx image)
+docker pull nginx                                                (it pull nginx image)
 docker images
 docker search nginx
 docker search mysql
 docker pull mysql
 docker images
-docker run -d nginx
-docker run -it nginx /bin/bash
+docker run -d nginx                                              (background run)
+docker run -it nginx /bin/bash                                   (image to container entry)
 docker ps
 docker ps -a
 docker exec -it <container name or container id> /bin/bash
-docker history <imageid>
+docker history <imageid>                                         (layer show)
 docker history <image name: image id>
 docker images
 docker ps                                            running container
@@ -24,7 +24,7 @@ docker ps -a                                         running + stopped
 docker run -d nginx
 docker run -d --name mynginx nginx
 docker ps
-docker inspect <containerid or containername>
+docker inspect <containerid or containername>              (host name, domain, ip, mac address show)
 docker inspect <imageid or imagename>
 docker exec -it <container name or container id> /bin/bash
 ls
@@ -555,3 +555,11 @@ volumes:
 docker-compose up -d
 docker-compose ps
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+docker questions:-
+1)docker log path?
+answer:- /var/lib/docker/containers/
+
+2)which driver used in docker?
+answer:- overlay2
+
+3)
