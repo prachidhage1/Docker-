@@ -19,8 +19,8 @@ docker exec -it <container name or container id> /bin/bash
 docker history <imageid>
 docker history <image name: image id>
 docker images
-docker ps
-docker ps -a
+docker ps                                            running container
+docker ps -a                                         running + stopped
 docker run -d nginx
 docker run -d --name mynginx nginx
 docker ps
